@@ -48,14 +48,21 @@ terra::time(stwsi) <- dates
 
 
 #########################################################################################################
-# 2. Read country boundaries
+# 2. Read Lancet Countdown country list and country boundaries
 #########################################################################################################
 
-# ESRI World Countries Generalized shapefile
+# Read the Lancet Countdown 2026 country list
+
+lancet_countries <- read.csv(
+  "data/Lancet_Countdown_2026_Country_Names.csv",
+  stringsAsFactors = FALSE
+)
+
+# Read ESRI World Countries Generalized shapefile
 
 countries <- vect("data/World_Countries_Generalized.shp")
 
-# Convert ISO2 country codes to ISO3
+# Convert ESRI ISO2 country codes to ISO3
 
 countries$ISO3 <- countrycode(
   countries$ISO,
@@ -66,6 +73,12 @@ countries$ISO3 <- countrycode(
 # Namibia requires manual assignment
 
 countries$ISO3[countries$COUNTRY == "Namibia"] <- "NAM"
+countries$ISO3[countries$COUNTRY == "Hong Kong"] <- "HKG"
+countries$ISO3[countries$COUNTRY == "Macao"] <- "MAC"
+
+# Retain countries included in the Lancet Countdown country list
+
+countries <- countries[countries$ISO3 %in% lancet_countries$ISO3, ]
 
 # Dissolve multiple polygons belonging to the same country
 
@@ -75,6 +88,16 @@ countries <- aggregate(countries, by = "ISO3", dissolve = TRUE)
 
 countries <- project(countries, "EPSG:4326")
 
+# Add Lancet Countdown country information
+
+country_info <- lancet_countries[
+  match(countries$ISO3, lancet_countries$ISO3),
+]
+
+countries$CountryName <- country_info$CountryName
+countries$LCGrouping <- country_info$LCGrouping
+countries$WHORegion <- country_info$WHORegion
+countries$HDIGroup2025 <- country_info$HDIGroup2025
 
 #########################################################################################################
 # 3. Define baseline and recent periods
@@ -263,10 +286,14 @@ ggsave(
 country_results <- countries_sf |>
   st_drop_geometry() |>
   select(
-    ISO3,
-    drought_change,
-    wet_change,
-    tws_sen_trend
+  ISO3,
+  CountryName,
+  LCGrouping,
+  WHORegion,
+  HDIGroup2025,
+  drought_change,
+  wet_change,
+  tws_sen_trend
   )
 
 write.csv(
