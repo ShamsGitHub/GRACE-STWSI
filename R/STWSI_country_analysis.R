@@ -1,8 +1,9 @@
 #########################################################################################################
 # GRACE-STWSI country-level analysis
 #
-# R script for analysing changes in extremely dry terrestrial water storage conditions
-# using the Standardised Terrestrial Water Storage Index (STWSI).
+# R script for analysing changes in extremely dry and wet terrestrial water storage
+# conditions using the Standardised Terrestrial Water Storage Index (STWSI), and
+# long-term trends in GRACE terrestrial water storage using the Theil-Sen estimator.
 #
 # Developed for the Lancet Countdown 2026.
 #
@@ -28,6 +29,11 @@ library(countrycode)
 # Monthly global STWSI raster, January 2003 to December 2025
 
 stwsi <- rast("data/CSR_GRACE_Global_Standardised_TWSI_03_25.tif")
+
+# Exclude the Caspian Sea from the analysis
+
+caspian_vect <- vect("data/worldglwd1.shp")
+stwsi <- mask(stwsi, caspian_vect, inverse = TRUE)
 
 # Assign monthly dates
 
@@ -119,6 +125,35 @@ recent_freq <- recent_sum / recent_n
 
 drought_change <- (recent_freq - base_freq) * 100
 
+#########################################################################################################
+# 5a. Calculate frequency and change in extremely wet conditions
+#########################################################################################################
+
+# Extremely wet conditions are defined as STWSI > 1.5
+
+# Baseline period
+
+wet_base <- stwsi[[baseline_idx]] > 1.5
+wet_base <- as.numeric(wet_base)
+
+base_sum_wet <- app(wet_base, sum, na.rm = TRUE)
+base_n_wet <- app(!is.na(stwsi[[baseline_idx]]), sum, na.rm = TRUE)
+
+base_freq_wet <- base_sum_wet / base_n_wet
+
+# Recent period
+
+wet_recent <- stwsi[[recent_idx]] > 1.5
+wet_recent <- as.numeric(wet_recent)
+
+recent_sum_wet <- app(wet_recent, sum, na.rm = TRUE)
+recent_n_wet <- app(!is.na(stwsi[[recent_idx]]), sum, na.rm = TRUE)
+
+recent_freq_wet <- recent_sum_wet / recent_n_wet
+
+# Percentage-point change in frequency of extremely wet months
+
+wet_change <- (recent_freq_wet - base_freq_wet) * 100
 
 #########################################################################################################
 # 6. Calculate country-level mean change
@@ -134,6 +169,42 @@ country_change <- extract(
 
 countries$drought_change <- country_change[, 2]
 
+# Calculate country-level mean change in extremely wet conditions
+
+country_wet_change <- extract(
+  wet_change,
+  countries,
+  fun = mean,
+  weights = TRUE,
+  na.rm = TRUE
+)
+
+countries$wet_change <- country_wet_change[, 2]
+
+#########################################################################################################
+# 6a. Extract country-level Theil-Sen trends in terrestrial water storage
+#########################################################################################################
+
+# Global Theil-Sen trend in GRACE terrestrial water storage, 2003-2025
+
+ts_trend <- rast("data/CSR_GRACE_TWS_Global_TSens_trends_03_25.tif")
+
+# Exclude the Caspian Sea to avoid its strong water-storage trend influencing
+# estimates for neighbouring countries
+
+ts_trend <- mask(ts_trend, caspian_vect, inverse = TRUE)
+
+# Calculate area-weighted mean TWS trend for each country
+
+country_trend <- extract(
+  ts_trend,
+  countries,
+  fun = mean,
+  weights = TRUE,
+  na.rm = TRUE
+)
+
+countries$tws_sen_trend <- country_trend[, 2]
 
 #########################################################################################################
 # 7. Map country-level changes
@@ -187,11 +258,20 @@ ggsave(
 
 # Export country-level results
 
-country_results <- st_drop_geometry(countries_sf)
+# Select key country-level indicators for export
+
+country_results <- countries_sf |>
+  st_drop_geometry() |>
+  select(
+    ISO3,
+    drought_change,
+    wet_change,
+    tws_sen_trend
+  )
 
 write.csv(
   country_results,
-  "outputs/STWSI_country_dry_change.csv",
+  "outputs/GRACE_STWSI_country_indicators_2003_2025.csv",
   row.names = FALSE
 )
 
