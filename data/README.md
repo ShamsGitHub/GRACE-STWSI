@@ -12,12 +12,12 @@ of the Lancet Countdown on Health and Climate Change*.
 The analysis uses terrestrial water storage (TWS) observations from the Gravity
 Recovery and Climate Experiment (GRACE) and GRACE Follow-On satellite missions
 to characterise extremely dry and wet terrestrial water storage conditions and
-long-term changes in water storage.
+long-term changes in water storage. GRACE dataset used in this analysis comes
+from CSR GRACE/GRACE-FO RL06.3 Mascon Solutions (https://www2.csr.utexas.edu/grace/RL0603_mascons.html).
 
 ## Standardised Terrestrial Water Storage Index (STWSI)
 
-The Standardised Terrestrial Water Storage Index (STWSI) represents terrestrial
-water storage anomalies relative to the long-term monthly climatology.
+The **Standardised Terrestrial Water Storage Index (STWSI)** was derived from monthly terrestrial water storage (TWS) observations from the **CSR GRACE/GRACE-FO Mascon product**. Missing monthly observations were filled using linear interpolation for short data gaps. For the extended GRACE–GRACE-FO mission gap during 2017–2018, missing monthly values were replaced using the corresponding monthly climatological means calculated over the six-year period from January 2015 to December 2020. The resulting continuous monthly TWS time series was then standardised relative to the long-term monthly climatology to produce the STWSI.
 
 Extremely dry conditions are defined as:
 
