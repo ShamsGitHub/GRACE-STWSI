@@ -34,14 +34,9 @@ For the Lancet Countdown 2026 analysis:
 
 The STWSI GeoTIFF is not stored directly in this GitHub repository because of
 its file size. It has been deposited in the **UCL Research Data Repository
-(Figshare)** and is currently under repository review.
+(Figshare)** and is publicly available.
 
-A private-access version is temporarily available at:
-
-https://figshare.com/s/e216d66641b4f9481c94
-
-The permanent UCL Research Data Repository DOI will be added here once the
-dataset is published.
+The STWSI dataset is available here: https://doi.org/10.5522/04/33528709
 
 To reproduce the analysis, download:
 
