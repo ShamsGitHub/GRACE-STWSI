@@ -70,7 +70,7 @@ countries$ISO3 <- countrycode(
   destination = "iso3c"
 )
 
-# Namibia requires manual assignment
+# Manual ISO3 assignments where required
 
 countries$ISO3[countries$COUNTRY == "Namibia"] <- "NAM"
 countries$ISO3[countries$COUNTRY == "Hong Kong"] <- "HKG"
@@ -286,14 +286,14 @@ ggsave(
 country_results <- countries_sf |>
   st_drop_geometry() |>
   select(
-  ISO3,
-  CountryName,
-  LCGrouping,
-  WHORegion,
-  HDIGroup2025,
-  drought_change,
-  wet_change,
-  tws_sen_trend
+    ISO3,
+    CountryName,
+    LCGrouping,
+    WHORegion,
+    HDIGroup2025,
+    drought_change,
+    wet_change,
+    tws_sen_trend
   )
 
 write.csv(
