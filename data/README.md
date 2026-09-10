@@ -59,11 +59,15 @@ The script calculates changes in the frequency of extremely dry terrestrial
 water storage conditions between 2006–2015 and 2016–2025 and aggregates the
 results at country level.
 
-## Data
+## Data availability
 
-The analysis uses GRACE and GRACE Follow-On terrestrial water storage
-observations. The large monthly STWSI dataset is not stored directly in this
-GitHub repository.
+The monthly global STWSI raster (`CSR_GRACE_Global_Standardised_TWSI_03_25.tif`) is archived in the UCL Research Data Repository (Figshare).
+
+The dataset is currently under repository review. A private-access version is temporarily available at:
+
+https://figshare.com/s/e216d66641b4f9481c94
+
+The permanent UCL Research Data Repository DOI will be added here once the dataset is published.
 
 Further information on the input data is provided in `data/README.md`.
 
