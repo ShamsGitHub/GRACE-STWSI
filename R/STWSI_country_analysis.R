@@ -10,7 +10,7 @@
 # Author: Prof Mohammad Shamsudduha
 # Department of Risk and Disaster Reduction, University College London (UCL)
 #
-# Last updated: 09 September 2026
+# Last updated: 10 September 2026
 #########################################################################################################
 
 # Load required packages
@@ -43,9 +43,12 @@ dates <- seq(
   by = "month"
 )
 
+if (nlyr(stwsi) != length(dates)) {
+  stop("Number of STWSI raster layers does not match the expected monthly dates (Jan 2003-Dec 2025).")
+}
+
 names(stwsi) <- format(dates, "%Y-%m")
 terra::time(stwsi) <- dates
-
 
 #########################################################################################################
 # 2. Read Lancet Countdown country list and country boundaries
@@ -121,7 +124,6 @@ recent_idx <- which(format(dates, "%Y") %in% 2016:2025)
 # Baseline period
 
 drought_base <- stwsi[[baseline_idx]] < -1.5
-drought_base <- as.numeric(drought_base)
 
 base_sum <- app(drought_base, sum, na.rm = TRUE)
 base_n <- app(!is.na(stwsi[[baseline_idx]]), sum, na.rm = TRUE)
@@ -132,13 +134,11 @@ base_freq <- base_sum / base_n
 # Recent period
 
 drought_recent <- stwsi[[recent_idx]] < -1.5
-drought_recent <- as.numeric(drought_recent)
 
 recent_sum <- app(drought_recent, sum, na.rm = TRUE)
 recent_n <- app(!is.na(stwsi[[recent_idx]]), sum, na.rm = TRUE)
 
 recent_freq <- recent_sum / recent_n
-
 
 #########################################################################################################
 # 5. Calculate change between the two periods
@@ -154,20 +154,17 @@ drought_change <- (recent_freq - base_freq) * 100
 
 # Extremely wet conditions are defined as STWSI > 1.5
 
-# Baseline period
-
 wet_base <- stwsi[[baseline_idx]] > 1.5
-wet_base <- as.numeric(wet_base)
 
 base_sum_wet <- app(wet_base, sum, na.rm = TRUE)
 base_n_wet <- app(!is.na(stwsi[[baseline_idx]]), sum, na.rm = TRUE)
 
 base_freq_wet <- base_sum_wet / base_n_wet
 
+
 # Recent period
 
 wet_recent <- stwsi[[recent_idx]] > 1.5
-wet_recent <- as.numeric(wet_recent)
 
 recent_sum_wet <- app(wet_recent, sum, na.rm = TRUE)
 recent_n_wet <- app(!is.na(stwsi[[recent_idx]]), sum, na.rm = TRUE)
